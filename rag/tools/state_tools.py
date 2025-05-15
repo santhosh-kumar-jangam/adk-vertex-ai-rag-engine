@@ -27,10 +27,11 @@ def store_corpus_id(tool_context: ToolContext, corpus_id: str) -> dict:
             "status": "success",
             "message": f"Stored corpus ID '{corpus_id}' in state"
         }
-        return {
+    # Only reached if the if condition is false
+    return {
         "status": "warning",
         "message": "State not available in this context"
-        }
+    }
 
 def get_last_corpus_id(tool_context: ToolContext) -> dict:
     """
@@ -48,10 +49,11 @@ def get_last_corpus_id(tool_context: ToolContext) -> dict:
             "corpus_id": tool_context.state['last_corpus_id'],
             "message": f"Retrieved corpus ID: {tool_context.state['last_corpus_id']}"
         }
-        return {
+    # Only reached if the if condition is false
+    return {
         "status": "error",
         "message": "No corpus ID found in state"
-        }
+    }
 
 # Create FunctionTools from the functions
 store_corpus_id_tool = FunctionTool(store_corpus_id)
