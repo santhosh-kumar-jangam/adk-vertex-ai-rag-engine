@@ -43,7 +43,7 @@ agent = Agent(
 
     4. STATE MANAGEMENT:
        - Store and retrieve information like corpus IDs or bucket names to make it easier to refer to the same resources across multiple commands
-
+    
     Always confirm operations before executing them, especially for delete operations.
     """,
     tools=[

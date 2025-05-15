@@ -4,8 +4,8 @@ Configuration settings for the RAG application
 import os
 
 # Load configuration from environment variables
-PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT", "vertex-ai-experminent")
-LOCATION = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT")
+LOCATION = os.environ.get("GOOGLE_CLOUD_LOCATION")
 
 # Common resource paths
 def get_corpus_path(corpus_id: str) -> str:
