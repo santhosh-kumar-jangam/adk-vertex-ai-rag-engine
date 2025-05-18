@@ -5,18 +5,27 @@ This module provides tools for creating and listing GCS buckets
 to be used with the Agent Development Kit (ADK).
 """
 
-import os
-import json
-import google.auth
 from google.cloud import storage
 from google.api_core.exceptions import GoogleAPIError
 from google.adk.tools import ToolContext, FunctionTool
 from typing import Dict, Any, Optional
 import logging
-from ..config import PROJECT_ID, LOCATION
+from rag.config import (
+    PROJECT_ID,
+    GCS_DEFAULT_STORAGE_CLASS,
+    GCS_DEFAULT_LOCATION,
+    GCS_LIST_BUCKETS_MAX_RESULTS,
+    GCS_LIST_BLOBS_MAX_RESULTS,
+    GCS_DEFAULT_CONTENT_TYPE,
+    LOG_LEVEL,
+    LOG_FORMAT
+)
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=getattr(logging, LOG_LEVEL),
+    format=LOG_FORMAT
+)
 
 # Initialize the GCS client
 client = storage.Client(project=PROJECT_ID)
@@ -24,8 +33,8 @@ client = storage.Client(project=PROJECT_ID)
 def create_gcs_bucket(
     tool_context: ToolContext,
     bucket_name: str,
-    storage_class: str = "STANDARD",
-    location: str = "US"
+    storage_class: Optional[str] = None,
+    location: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Creates a new Google Cloud Storage bucket.
@@ -39,6 +48,10 @@ def create_gcs_bucket(
     Returns:
         A dictionary containing the result of the bucket creation
     """
+    if storage_class is None:
+        storage_class = GCS_DEFAULT_STORAGE_CLASS
+    if location is None:
+        location = GCS_DEFAULT_LOCATION
     try:
         # Initialize the client
         client = storage.Client(project=PROJECT_ID)
@@ -88,21 +101,21 @@ def create_gcs_bucket(
         }
 
 def list_gcs_buckets(
-    tool_context: ToolContext,
     prefix: Optional[str] = None,
-    max_results: int = 50
+    max_results: Optional[int] = None
 ) -> Dict[str, Any]:
     """
     Lists Google Cloud Storage buckets in the configured project.
     
     Args:
-        tool_context: The tool context for ADK
         prefix: Optional prefix to filter buckets by name
         max_results: Maximum number of results to return (default: 50)
         
     Returns:
         A dictionary containing the list of buckets
     """
+    if max_results is None:
+        max_results = GCS_LIST_BUCKETS_MAX_RESULTS
     try:
         # Initialize the client
         client = storage.Client(project=PROJECT_ID)
@@ -140,14 +153,12 @@ def list_gcs_buckets(
         }
 
 def get_bucket_details(
-    tool_context: ToolContext,
     bucket_name: str
 ) -> Dict[str, Any]:
     """
     Gets detailed information about a specific GCS bucket.
     
     Args:
-        tool_context: The tool context for ADK
         bucket_name: The name of the bucket to get details for
         
     Returns:
@@ -194,17 +205,15 @@ def get_bucket_details(
         }
 
 def list_blobs_in_bucket(
-    tool_context: ToolContext,
     bucket_name: str,
     prefix: Optional[str] = None,
     delimiter: Optional[str] = None,
-    max_results: int = 100
+    max_results: Optional[int] = None
 ) -> Dict[str, Any]:
     """
     Lists blobs (files) in a Google Cloud Storage bucket.
     
     Args:
-        tool_context: The tool context for ADK
         bucket_name: The name of the bucket to list blobs from
         prefix: Optional prefix to filter blobs by name
         delimiter: Optional delimiter for hierarchy simulation (e.g., '/' for folders)
@@ -213,6 +222,8 @@ def list_blobs_in_bucket(
     Returns:
         A dictionary containing the list of blobs and prefixes (if delimiter is used)
     """
+    if max_results is None:
+        max_results = GCS_LIST_BLOBS_MAX_RESULTS
     try:
         # Initialize the client
         client = storage.Client(project=PROJECT_ID)
@@ -275,7 +286,7 @@ def upload_file_to_gcs(
     bucket_name: str,
     file_artifact_name: str,
     destination_blob_name: Optional[str] = None,
-    content_type: str = "application/pdf"
+    content_type: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Uploads a file from ADK artifacts to a Google Cloud Storage bucket.
@@ -290,6 +301,8 @@ def upload_file_to_gcs(
     Returns:
         A dictionary containing the upload status and details
     """
+    if content_type is None:
+        content_type = GCS_DEFAULT_CONTENT_TYPE
     try:
         # Check if user_content contains a PDF attachment
         if (hasattr(tool_context, "user_content") and 
@@ -331,6 +344,7 @@ def upload_file_to_gcs(
                     "status": "success",
                     "bucket": bucket_name,
                     "filename": destination_blob_name,
+                    "gcs_uri": f"gs://{bucket_name}/{destination_blob_name}",
                     "size_bytes": len(file_data),
                     "content_type": content_type,
                     "url": url,
@@ -361,6 +375,4 @@ create_bucket_tool = FunctionTool(create_gcs_bucket)
 list_buckets_tool = FunctionTool(list_gcs_buckets)
 get_bucket_details_tool = FunctionTool(get_bucket_details)
 list_blobs_tool = FunctionTool(list_blobs_in_bucket)
-
-# Use explicit parameter definitions for the upload_file_directly_tool
-upload_file_directly_tool = FunctionTool(upload_file_to_gcs) 
+upload_file_gcs_tool = FunctionTool(upload_file_to_gcs) 

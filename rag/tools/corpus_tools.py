@@ -14,14 +14,19 @@ This module provides function tools for managing RAG corpora:
 10. Query RAG files
 """
 
-import os
-import json
 import vertexai
 from vertexai.preview import rag
 from google.adk.tools import FunctionTool
-from typing import Dict, List, Optional, Any, Union
-from google.adk.tools.retrieval.vertex_ai_rag_retrieval import VertexAiRagRetrieval
-from ..config import PROJECT_ID, LOCATION
+from typing import Dict, Optional, Any
+from rag.config import (
+    PROJECT_ID,
+    LOCATION,
+    RAG_DEFAULT_EMBEDDING_MODEL,
+    RAG_DEFAULT_TOP_K,
+    RAG_DEFAULT_SEARCH_TOP_K,
+    RAG_DEFAULT_VECTOR_DISTANCE_THRESHOLD,
+    RAG_DEFAULT_PAGE_SIZE
+)
 
 # Initialize Vertex AI API
 vertexai.init(project=PROJECT_ID, location=LOCATION)
@@ -30,7 +35,7 @@ vertexai.init(project=PROJECT_ID, location=LOCATION)
 def create_rag_corpus(
     display_name: str,
     description: Optional[str] = None,
-    embedding_model: str = "text-embedding-004"
+    embedding_model: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Creates a new RAG corpus in Vertex AI.
@@ -48,6 +53,8 @@ def create_rag_corpus(
         - display_name: The human-readable name provided
         - error_message: Present only if an error occurred
     """
+    if embedding_model is None:
+        embedding_model = RAG_DEFAULT_EMBEDDING_MODEL
     try:
         # Configure embedding model
         embedding_model_config = rag.EmbeddingModelConfig(
@@ -309,13 +316,6 @@ def delete_rag_corpus(corpus_id: str) -> Dict[str, Any]:
         }
 
 
-# Create ADK function tools from the functions
-create_corpus_tool = FunctionTool(create_rag_corpus)
-update_corpus_tool = FunctionTool(update_rag_corpus)
-list_corpora_tool = FunctionTool(list_rag_corpora)
-get_corpus_tool = FunctionTool(get_rag_corpus)
-delete_corpus_tool = FunctionTool(delete_rag_corpus)
-
 # Function for importing documents into a RAG corpus
 def import_document_to_corpus(
     corpus_id: str,
@@ -360,14 +360,11 @@ def import_document_to_corpus(
             "message": f"Failed to import document: {str(e)}"
         }
 
-# Create function tool
-import_document_tool = FunctionTool(import_document_to_corpus)
-
 # RAG File Management Functions
 
 def list_rag_files(
     corpus_id: str,
-    page_size: int = 50,
+    page_size: Optional[int] = None,
     page_token: Optional[str] = None
 ) -> Dict[str, Any]:
     """
@@ -387,6 +384,8 @@ def list_rag_files(
         - next_page_token: Token for the next page (if any)
         - error_message: Present only if an error occurred
     """
+    if page_size is None:
+        page_size = RAG_DEFAULT_PAGE_SIZE
     try:
         # Construct full corpus name
         corpus_name = f"projects/{PROJECT_ID}/locations/{LOCATION}/ragCorpora/{corpus_id}"
@@ -529,17 +528,12 @@ def delete_rag_file(
             "message": f"Failed to delete file: {str(e)}"
         }
 
-# RAG file management tools
-list_files_tool = FunctionTool(list_rag_files)
-get_file_tool = FunctionTool(get_rag_file)
-delete_file_tool = FunctionTool(delete_rag_file)
-
 # Function for simple direct corpus querying
 def query_rag_corpus(
     corpus_id: str,
     query_text: str,
-    top_k: int = 10,
-    vector_distance_threshold: float = 0.5
+    top_k: Optional[int] = None,
+    vector_distance_threshold: Optional[float] = None
 ) -> Dict[str, Any]:
     """
     Directly queries a RAG corpus using the Vertex AI RAG API.
@@ -553,6 +547,10 @@ def query_rag_corpus(
     Returns:
         A dictionary containing the query results
     """
+    if top_k is None:
+        top_k = RAG_DEFAULT_TOP_K
+    if vector_distance_threshold is None:
+        vector_distance_threshold = RAG_DEFAULT_VECTOR_DISTANCE_THRESHOLD
     try:
         # Construct full corpus resource path
         corpus_path = f"projects/{PROJECT_ID}/locations/{LOCATION}/ragCorpora/{corpus_id}"
@@ -607,14 +605,11 @@ def query_rag_corpus(
             "message": f"Failed to query corpus: {str(e)}"
         }
 
-# Create the direct query tool
-query_rag_corpus_tool = FunctionTool(query_rag_corpus)
-
 # Function to search across all corpora
 def search_all_corpora(
     query_text: str,
-    top_k_per_corpus: int = 5,
-    vector_distance_threshold: float = 0.5
+    top_k_per_corpus: Optional[int] = None,
+    vector_distance_threshold: Optional[float] = None
 ) -> Dict[str, Any]:
     """
     Searches across ALL available corpora for the given query text.
@@ -629,6 +624,10 @@ def search_all_corpora(
     Returns:
         A dictionary containing the combined search results with citations
     """
+    if top_k_per_corpus is None:
+        top_k_per_corpus = RAG_DEFAULT_SEARCH_TOP_K
+    if vector_distance_threshold is None:
+        vector_distance_threshold = RAG_DEFAULT_VECTOR_DISTANCE_THRESHOLD
     try:
         # First, list all available corpora
         corpora_response = list_rag_corpora()
@@ -728,5 +727,19 @@ def search_all_corpora(
             "message": f"Failed to search all corpora: {str(e)}"
         }
 
-# Create the all-corpora search tool
+# Create FunctionTools from the functions for the RAG corpus management tools
+create_corpus_tool = FunctionTool(create_rag_corpus)
+update_corpus_tool = FunctionTool(update_rag_corpus)
+list_corpora_tool = FunctionTool(list_rag_corpora)
+get_corpus_tool = FunctionTool(get_rag_corpus)
+delete_corpus_tool = FunctionTool(delete_rag_corpus)
+import_document_tool = FunctionTool(import_document_to_corpus)
+
+# Create FunctionTools from the functions for the RAG file management tools
+list_files_tool = FunctionTool(list_rag_files)
+get_file_tool = FunctionTool(get_rag_file)
+delete_file_tool = FunctionTool(delete_rag_file)
+
+# Create FunctionTools from the functions for the RAG query tools
+query_rag_corpus_tool = FunctionTool(query_rag_corpus)
 search_all_corpora_tool = FunctionTool(search_all_corpora) 
