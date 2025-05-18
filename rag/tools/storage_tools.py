@@ -156,13 +156,13 @@ def get_bucket_details(
     bucket_name: str
 ) -> Dict[str, Any]:
     """
-    Gets detailed information about a specific GCS bucket.
+    Gets detailed information about a specific GCS bucket, including a list of all files (blobs).
     
     Args:
         bucket_name: The name of the bucket to get details for
         
     Returns:
-        A dictionary containing the bucket details
+        A dictionary containing the bucket details and a list of files
     """
     try:
         # Initialize the client
@@ -170,6 +170,19 @@ def get_bucket_details(
         
         # Get the bucket
         bucket = client.get_bucket(bucket_name)
+        
+        # List all blobs in the bucket
+        blobs = client.list_blobs(bucket_name)
+        blob_list = []
+        for blob in blobs:
+            blob_list.append({
+                "name": blob.name,
+                "size": blob.size,
+                "content_type": blob.content_type,
+                "updated": blob.updated.isoformat() if blob.updated else None,
+                "gcs_uri": f"gs://{bucket_name}/{blob.name}",
+                "public_url": f"https://storage.googleapis.com/{bucket_name}/{blob.name}"
+            })
         
         # Return detailed information
         return {
@@ -187,9 +200,11 @@ def get_bucket_details(
                 "labels": bucket.labels,
                 "requester_pays": bucket.requester_pays,
                 "self_link": f"https://storage.googleapis.com/{bucket_name}",
-                "etag": bucket.etag
+                "etag": bucket.etag,
+                "files": blob_list,
+                "file_count": len(blob_list)
             },
-            "message": f"Successfully retrieved details for bucket '{bucket_name}'"
+            "message": f"Successfully retrieved details and {len(blob_list)} file(s) for bucket '{bucket_name}'"
         }
     except GoogleAPIError as e:
         return {

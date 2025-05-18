@@ -1,13 +1,15 @@
 """
 RAG Corpus Management Tools for Vertex AI using ADK function tools pattern.
 
-This module provides function tools for managing RAG corpora:
+RAG Corpus Management:
 1. Create a new RAG corpus
 2. Update an existing RAG corpus
 3. List all RAG corpora
 4. Get details of a specific RAG corpus
 5. Delete a RAG corpus
-6. Upload RAG files 
+
+RAG File Management (within a corpus):
+6. Upload RAG files
 7. List RAG files
 8. Get RAG file details
 9. Delete RAG files
