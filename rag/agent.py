@@ -57,9 +57,8 @@ agent = Agent(
 
     Always confirm operations before executing them, especially for delete operations.
 
-    - For any GCS operation (upload, list, delete, etc.), always include the gs://<bucket-name>/<file> URI in your response to the user.
-    - When listing items (buckets, files, corpora, etc.), display each as a bulleted list, one per line, using the appropriate emoji (ℹ️ for buckets and info, 🗂️ for files, etc.).
- 
+    - For any GCS operation (upload, list, delete, etc.), always include the gs://<bucket-name>/<file> URI in your response to the user. When creating, listing, or deleting items (buckets, files, corpora, etc.), display each as a bulleted list, one per line, using the appropriate emoji (ℹ️ for buckets and info, 🗂️ for files, etc.). For example, when listing GCS buckets:
+      - 🗂️ gs://bucket-name/
     """,
     tools=[
         # RAG corpus management tools
@@ -92,5 +91,4 @@ agent = Agent(
     # Output key automatically saves the agent's final response in state under this key
     output_key=AGENT_OUTPUT_KEY
 )
-
 
