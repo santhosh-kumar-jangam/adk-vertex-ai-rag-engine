@@ -84,7 +84,7 @@ The project includes several pre-created RAG corpora covering major AI topics:
 - **Domain-Specific LLMs**: Techniques for applying LLMs to solve domain-specific problems
 - **MLOps for Generative AI**: Deployment and production considerations for GenAI systems
 
-Each corpus contains relevant PDF documents imported from the Google Vertex AI learning series:
+Each corpus contains relevant PDF documents imported from Google and Kaggle's Gen AI Intensive course:
 
 - [Day 1: Foundational Models & Prompt Engineering](https://lnkd.in/d-_w3gXj)
 - [Day 2: Embeddings & Vector Stores / Databases](https://lnkd.in/dkmfDUcp)
