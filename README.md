@@ -98,6 +98,21 @@ These documents are from Google and Kaggle's Gen AI Intensive course, which brok
 
 The project follows a modular architecture based on the ADK framework:
 
+![ADK Vertex AI RAG Architecture](.Images/ADK-VertexAI-RAG-Architecture.png)
+
+The architecture consists of several key components:
+
+1. **User Interface**: Interact with the system through ADK Web or CLI
+2. **Agent Development Kit (ADK)**: The core orchestration layer that manages tools and user interactions
+3. **Function Tools**: Modular components divided into:
+   - **Storage Tools**: For GCS bucket and file management
+   - **RAG Corpus Tools**: For corpus management and semantic search
+4. **Google Cloud Services**:
+   - **Google Cloud Storage**: Stores document files
+   - **Vertex AI RAG Engine**: Provides embedding, indexing and retrieval capabilities
+   - **Gemini 2.0 LLM Model**: Generates responses grounded in retrieved contexts
+
+File structure:
 ```
 adk-vertex-ai-rag-engine/
 ├── rag/                          # Main project package
