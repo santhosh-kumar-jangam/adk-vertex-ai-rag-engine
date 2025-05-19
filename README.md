@@ -1,4 +1,4 @@
-# Agent Development Kit (ADK) + Vertex AI RAG Engine: Setup RAG Corpus in less than 2 mins and query against Vertex AI RAG Engine
+# Agent Development Kit (ADK) + Vertex AI RAG Engine
 
 A production-ready Retrieval-Augmented Generation (RAG) engine built with Google's [Agent Development Kit (ADK)](https://google.github.io/adk-docs/) and [Vertex AI RAG Engine](https://cloud.google.com/vertex-ai/generative-ai/docs/rag-engine/rag-overview). This project provides a modular framework for managing Google Cloud Storage (GCS) buckets, RAG corpora, and document retrieval with a focus on best practices and user experience.
 
@@ -41,7 +41,6 @@ ADK makes agent development feel more like software development, making it easie
 
 ## Table of Contents
 
-- [Agent Development Kit (ADK) + Vertex AI RAG Engine: Setup RAG Corpus in less than 2 mins and query against Vertex AI RAG Engine](#agent-development-kit-adk--vertex-ai-rag-engine-setup-rag-corpus-in-less-than-2-mins-and-query-against-vertex-ai-rag-engine)
 - [Vertex AI RAG Engine](#vertex-ai-rag-engine)
   - [RAG Process Concepts](#rag-process-concepts)
 - [Agent Development Kit (ADK)](#agent-development-kit-adk)
