@@ -171,7 +171,7 @@ There are two ways to run the agent:
 
 ```bash
 # Option 1: Use ADK web interface (recommended for interactive usage)
-adk web rag
+adk web 
 
 # Option 2: Run the agent directly in the terminal
 adk run rag
