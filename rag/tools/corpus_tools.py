@@ -15,7 +15,7 @@ RAG File Management (within a corpus):
 9. Delete RAG files
 10. Query RAG files
 """
-
+import os
 import vertexai
 from vertexai.preview import rag
 from google.adk.tools import FunctionTool
@@ -31,8 +31,17 @@ from rag.config import (
 )
 
 # Initialize Vertex AI API
-vertexai.init(project=PROJECT_ID, location=LOCATION)
+# vertexai.init(project=PROJECT_ID, location=LOCATION)
+from dotenv import load_dotenv
+load_dotenv()
 
+from google.oauth2 import service_account
+
+SERVICE_ACCOUNT_KEY_PATH = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON_FILE")
+
+credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_KEY_PATH)
+
+vertexai.init(project=PROJECT_ID, location=LOCATION, credentials=credentials)
 
 def create_rag_corpus(
     display_name: str,
@@ -87,7 +96,7 @@ def create_rag_corpus(
             "message": f"Failed to create RAG corpus: {str(e)}"
         }
 
-
+# NEED FIXING
 def update_rag_corpus(
     corpus_id: str,
     display_name: Optional[str] = None,
@@ -125,8 +134,7 @@ def update_rag_corpus(
         
         # Apply updates
         updated_corpus = rag.update_corpus(
-            corpus=corpus,
-            update_mask=["display_name", "description"]
+            corpus_name=corpus_name
         )
         
         return {

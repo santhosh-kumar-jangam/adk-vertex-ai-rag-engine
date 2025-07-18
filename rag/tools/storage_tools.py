@@ -10,6 +10,8 @@ from google.api_core.exceptions import GoogleAPIError
 from google.adk.tools import ToolContext, FunctionTool
 from typing import Dict, Any, Optional
 import logging
+import os
+
 from rag.config import (
     PROJECT_ID,
     GCS_DEFAULT_STORAGE_CLASS,
@@ -27,11 +29,13 @@ logging.basicConfig(
     format=LOG_FORMAT
 )
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # Initialize the GCS client
-client = storage.Client(project=PROJECT_ID)
+# client = storage.Client(project=PROJECT_ID)
 
 def create_gcs_bucket(
-    tool_context: ToolContext,
     bucket_name: str,
     storage_class: Optional[str] = None,
     location: Optional[str] = None
@@ -54,7 +58,9 @@ def create_gcs_bucket(
         location = GCS_DEFAULT_LOCATION
     try:
         # Initialize the client
-        client = storage.Client(project=PROJECT_ID)
+        service_account_key_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON_FILE")
+
+        client = storage.Client.from_service_account_json(service_account_key_path)
         
         # Check if the bucket already exists
         try:
@@ -73,8 +79,8 @@ def create_gcs_bucket(
         bucket = client.create_bucket(bucket, location=location)
         
         # Save the bucket name in state for easy reference later
-        if hasattr(tool_context, "state"):
-            tool_context.state["last_bucket_name"] = bucket_name
+        # if hasattr(tool_context, "state"):
+        #     tool_context.state["last_bucket_name"] = bucket_name
         
         # Return success message with details
         result = {
@@ -118,7 +124,9 @@ def list_gcs_buckets(
         max_results = GCS_LIST_BUCKETS_MAX_RESULTS
     try:
         # Initialize the client
-        client = storage.Client(project=PROJECT_ID)
+        service_account_key_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON_FILE")
+
+        client = storage.Client.from_service_account_json(service_account_key_path)
         
         # List the buckets with optional filtering
         bucket_iterator = client.list_buckets(prefix=prefix, max_results=max_results)
@@ -152,6 +160,34 @@ def list_gcs_buckets(
             "message": f"An unexpected error occurred: {str(e)}"
         }
 
+def upload_file_to_bucket(bucket_name: str, file_path: str, destination_blob_name: str):
+    try:
+        service_account_key_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON_FILE")
+
+        client = storage.Client.from_service_account_json(service_account_key_path)
+
+        bucket = client.get_bucket(bucket_name)
+    
+        blob = bucket.blob(destination_blob_name)
+        blob.upload_from_filename(file_path)
+    
+        return {
+            "status": "success"
+        }
+
+    except GoogleAPIError as e:
+        return {
+            "status": "error",
+            "error_message": str(e),
+            "message": f"Failed to list buckets: {str(e)}"
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error_message": str(e),
+            "message": f"An unexpected error occurred: {str(e)}"
+        }
+
 def get_bucket_details(
     bucket_name: str
 ) -> Dict[str, Any]:
@@ -166,7 +202,9 @@ def get_bucket_details(
     """
     try:
         # Initialize the client
-        client = storage.Client(project=PROJECT_ID)
+        service_account_key_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON_FILE")
+
+        client = storage.Client.from_service_account_json(service_account_key_path)
         
         # Get the bucket
         bucket = client.get_bucket(bucket_name)
@@ -241,7 +279,9 @@ def list_blobs_in_bucket(
         max_results = GCS_LIST_BLOBS_MAX_RESULTS
     try:
         # Initialize the client
-        client = storage.Client(project=PROJECT_ID)
+        service_account_key_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON_FILE")
+
+        client = storage.Client.from_service_account_json(service_account_key_path)
         
         # Get the bucket
         bucket = client.bucket(bucket_name)

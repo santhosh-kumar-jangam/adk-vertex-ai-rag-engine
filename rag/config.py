@@ -3,7 +3,7 @@ Configuration settings for the Vertex AI RAG engine.
 """
 
 # Google Cloud Project Settings
-PROJECT_ID = "your-project-id"  # Replace with your project ID
+PROJECT_ID = "buckets-python"  # Replace with your project ID
 LOCATION = "us-central1"  # Default location for Vertex AI resources
 
 # GCS Storage Settings

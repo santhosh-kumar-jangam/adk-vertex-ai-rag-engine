@@ -2,6 +2,8 @@
 Configuration settings for the Vertex AI RAG engine.
 """
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Google Cloud Project Settings
 PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT")  # Replace with your project ID
